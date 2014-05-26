@@ -94,61 +94,62 @@ public class Receiver implements Runnable {
     public void run () {
         try {
             String line;
-            while ((line = _reader.readLine()) != null) {
-                if (line.startsWith("%MSG ")) {
-                    if (_msgName != null) report("%MSG", "while processing %MSG");
-                    _msgName = line.substring(5);
-                    _keyName = null;
-                    _msgData = new HashMap<>();
-
-                } else if (line.equals("%ENDMSG")) {
-                    if (reqmsg("%ENDMSG")) {
-                        try { _lner.onMessage(_msgName, _msgData); }
-                        catch (Exception e) { _lner.onUnexpected(e); }
-                        _msgName = null;
-                        _msgData = null;
-                        if (_keyName != null) report("%ENDMSG", "with dangling %KEY");
-                        _keyName = null;
-                        if (_text != null) report("%ENDMSG", "with dangling %TXT");
-                        _text = null;
-                    }
-
-                } else if (line.startsWith("%KEY ")) {
-                    if (reqmsg("%KEY")) {
-                        if (_keyName != null) report("%KEY", "while processing %KEY");
-                        _keyName = line.substring(5);
-                    }
-
-                } else if (line.startsWith("%STR ")) {
-                    if (reqmsg("%STR") && reqkey("%STR")) {
-                        _msgData.put(_keyName, line.substring(5));
-                        _keyName = null;
-                    }
-
-                } else if (line.equals("%TXT")) {
-                    if (reqmsg("%TXT") && reqkey("%TXT")) {
-                        if (_text != null) report("%TXT", "while processing %TXT");
-                        _text = new StringBuilder();
-                    }
-
-                } else if (line.equals("%ENDTXT")) {
-                    if (reqmsg("%TXT") && reqkey("%TXT") && reqtxt("%ENDTXT")) {
-                        _msgData.put(_keyName, _text.toString());
-                        _keyName = null;
-                        _text = null;
-                    }
-
-                } else {
-                    if (reqmsg("text") && reqkey("text") && reqtxt("text")) {
-                        // TODO: this doesn't preserve leading blank lines; do we care?
-                        if (_text.length() > 0) _text.append(LINE_SEP);
-                        _text.append(unescape(line));
-                    }
-                }
-            }
-
+            while ((line = _reader.readLine()) != null) processLine(line);
         } catch (IOException ioe) {
             _lner.onIOFailure(ioe);
+        }
+    }
+
+    protected void processLine (String line) {
+        if (line.startsWith("%MSG ")) {
+            if (_msgName != null) report("%MSG", "while processing %MSG");
+            _msgName = line.substring(5);
+            _keyName = null;
+            _msgData = new HashMap<>();
+
+        } else if (line.equals("%ENDMSG")) {
+            if (reqmsg("%ENDMSG")) {
+                try { _lner.onMessage(_msgName, _msgData); }
+                catch (Exception e) { _lner.onUnexpected(e); }
+                _msgName = null;
+                _msgData = null;
+                if (_keyName != null) report("%ENDMSG", "with dangling %KEY");
+                _keyName = null;
+                if (_text != null) report("%ENDMSG", "with dangling %TXT");
+                _text = null;
+            }
+
+        } else if (line.startsWith("%KEY ")) {
+            if (reqmsg("%KEY")) {
+                if (_keyName != null) report("%KEY", "while processing %KEY");
+                _keyName = line.substring(5);
+            }
+
+        } else if (line.startsWith("%STR ")) {
+            if (reqmsg("%STR") && reqkey("%STR")) {
+                _msgData.put(_keyName, line.substring(5));
+                _keyName = null;
+            }
+
+        } else if (line.equals("%TXT")) {
+            if (reqmsg("%TXT") && reqkey("%TXT")) {
+                if (_text != null) report("%TXT", "while processing %TXT");
+                _text = new StringBuilder();
+            }
+
+        } else if (line.equals("%ENDTXT")) {
+            if (reqmsg("%TXT") && reqkey("%TXT") && reqtxt("%ENDTXT")) {
+                _msgData.put(_keyName, _text.toString());
+                _keyName = null;
+                _text = null;
+            }
+
+        } else {
+            if (reqmsg("text") && reqkey("text") && reqtxt("text")) {
+                // TODO: this doesn't preserve leading blank lines; do we care?
+                if (_text.length() > 0) _text.append(LINE_SEP);
+                _text.append(unescape(line));
+            }
         }
     }
 
