@@ -44,7 +44,7 @@ string payload and `%STR` from its string payload. Or:
     %ENDTXT
 
 where `string` has the same definition as above, and `text` is unstructured UTF-8 text which may
-contain line separators. If the character `% appears at the start of any line of `text` it will be
+contain line separators. If the character `%` appears at the start of any line of `text` it will be
 escaped as `\%`. If the string `\%` appears at the start of any line of `text` it will be escaped as
 `\\%`. And so forth. It's turtles all the way down. `%TXT` and `%ENDTXT` are the sole contents of
 their lines.
