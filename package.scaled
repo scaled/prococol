@@ -1,0 +1,8 @@
+   name: prococol
+version: 1.0
+descrip: A simple text-based protocol for communicating with subprocesses.
+ weburl: https://github.com/scaled/prococol
+ srcurl: git:https://github.com/scaled/prococol.git
+license: New BSD
+ srcdir: src/main/scala
+ bindir: target/classes
