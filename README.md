@@ -54,7 +54,7 @@ orderly closure of the pipes/streams that form the basis of communication is use
 termination of a session. A particular client/server pair can exchange application level messages to
 initiate said closure from the client or server.
 
-## Errata
+## Miscellany
 
 Prococol is pronounced "prock-o-call".
 
