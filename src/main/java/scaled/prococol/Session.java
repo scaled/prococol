@@ -73,6 +73,13 @@ public class Session implements AutoCloseable {
     }
 
     /**
+     * Returns true if there's an interaction in progress.
+     */
+    public boolean interacting () {
+        return _actor != null;
+    }
+
+    /**
      * Initiates an interaction in this session. {@code msgName} and {@code msgData} will be sent as
      * a message to the other party in this session. {@code interactor} will be informed of all
      * messages received from the other party until it indicates that the interaction is complete.
