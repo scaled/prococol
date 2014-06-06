@@ -102,50 +102,50 @@ public class Receiver implements Runnable {
 
     protected void processLine (String line) {
         if (line.startsWith("%MSG ")) {
-            if (_msgName != null) report("%MSG", "while processing %MSG");
+            if (_msgName != null) report("%MSG", "while processing %MSG", line);
             _msgName = line.substring(5);
             _keyName = null;
             _msgData = new HashMap<>();
 
         } else if (line.equals("%ENDMSG")) {
-            if (reqmsg("%ENDMSG")) {
+            if (reqmsg("%ENDMSG", line)) {
                 try { _lner.onMessage(_msgName, _msgData); }
                 catch (Exception e) { _lner.onUnexpected(e); }
                 _msgName = null;
                 _msgData = null;
-                if (_keyName != null) report("%ENDMSG", "with dangling %KEY");
+                if (_keyName != null) report("%ENDMSG", "with dangling %KEY", line);
                 _keyName = null;
-                if (_text != null) report("%ENDMSG", "with dangling %TXT");
+                if (_text != null) report("%ENDMSG", "with dangling %TXT", line);
                 _text = null;
             }
 
         } else if (line.startsWith("%KEY ")) {
-            if (reqmsg("%KEY")) {
-                if (_keyName != null) report("%KEY", "while processing %KEY");
+            if (reqmsg("%KEY", line)) {
+                if (_keyName != null) report("%KEY", "while processing %KEY", line);
                 _keyName = line.substring(5);
             }
 
         } else if (line.startsWith("%STR ")) {
-            if (reqmsg("%STR") && reqkey("%STR")) {
+            if (reqmsg("%STR", line) && reqkey("%STR", line)) {
                 _msgData.put(_keyName, line.substring(5));
                 _keyName = null;
             }
 
         } else if (line.equals("%TXT")) {
-            if (reqmsg("%TXT") && reqkey("%TXT")) {
-                if (_text != null) report("%TXT", "while processing %TXT");
+            if (reqmsg("%TXT", line) && reqkey("%TXT", line)) {
+                if (_text != null) report("%TXT", "while processing %TXT", line);
                 _text = new StringBuilder();
             }
 
         } else if (line.equals("%ENDTXT")) {
-            if (reqmsg("%TXT") && reqkey("%TXT") && reqtxt("%ENDTXT")) {
+            if (reqmsg("%TXT", line) && reqkey("%TXT", line) && reqtxt("%ENDTXT", line)) {
                 _msgData.put(_keyName, _text.toString());
                 _keyName = null;
                 _text = null;
             }
 
         } else {
-            if (reqmsg("text") && reqkey("text") && reqtxt("text")) {
+            if (reqmsg("text", line) && reqkey("text", line) && reqtxt("text", line)) {
                 // TODO: this doesn't preserve leading blank lines; do we care?
                 if (_text.length() > 0) _text.append(LINE_SEP);
                 _text.append(unescape(line));
@@ -153,16 +153,19 @@ public class Receiver implements Runnable {
         }
     }
 
-    protected boolean reqmsg (String kind) { return req(_msgName, "outside of %MSG", kind); }
-    protected boolean reqkey (String kind) { return req(_keyName, "with no %KEY", kind); }
-    protected boolean reqtxt (String kind) { return req(_text, "with no %TXT", kind); }
-    protected boolean req (Object sentinel, String msg, String kind) {
+    protected boolean reqmsg (String kind, String line) {
+      return req(_msgName, "outside of %MSG", kind, line); }
+    protected boolean reqkey (String kind, String line) {
+      return req(_keyName, "with no %KEY", kind, line); }
+    protected boolean reqtxt (String kind, String line) {
+      return req(_text, "with no %TXT", kind, line); }
+    protected boolean req (Object sentinel, String msg, String kind, String line) {
         if (sentinel != null) return true;
-        report(kind, msg);
+        report(kind, msg, line);
         return false;
     }
-    protected void report (String rkind, String msg) {
-        _lner.onUnexpected(new ProtocolException("Received "+ rkind +" "+ msg));
+    protected void report (String rkind, String msg, String line) {
+        _lner.onUnexpected(new ProtocolException("Received "+ rkind +" "+ msg +": "+ line));
     }
 
     private static final String LINE_SEP = System.getProperty("line.separator");
