@@ -46,7 +46,7 @@ public class Session implements AutoCloseable {
         proc = new SubProcess(config, new SubProcess.Listener() {
             public void onMessage (String name, Map<String,String> data) {
                 if (_actor != null) exec.execute(() -> {
-                    if (_actor.onMessage(name, data)) _actor = null;
+                    if (_actor.onMessage(name, data)) interactionEnded();
                 });
                 else onErrorOutput("Message received outside of interaction [name=%s, data=%s]".
                                    format(name, data));
@@ -90,6 +90,13 @@ public class Session implements AutoCloseable {
         if (_actor != null) throw new IllegalStateException("Interaction already in progress.");
         _actor = interactor;
         proc.sender.send(msgName, msgData);
+    }
+
+    /**
+     * Called when an interaction is complete.
+     */
+    protected void interactionEnded () {
+        _actor = null;
     }
 
     /**
