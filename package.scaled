@@ -4,5 +4,3 @@ version: 1.0
 descrip: A simple text-based protocol for communicating with subprocesses.
  weburl: https://github.com/scaled/prococol
 license: New BSD
- srcdir: src/main/scala
- bindir: target/classes
