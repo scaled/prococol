@@ -73,6 +73,13 @@ public class Session implements AutoCloseable {
     }
 
     /**
+     * Forcibly terminates the subprocess and closes this session.
+     */
+    public void forceClose () throws IOException {
+        proc.kill();
+    }
+
+    /**
      * Returns true if there's an interaction in progress.
      */
     public boolean interacting () {

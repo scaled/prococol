@@ -110,7 +110,7 @@ public class SubProcess implements AutoCloseable {
      * of thing.
      */
     public void close () throws IOException {
-        _proc.getOutputStream().close();
+        if (_proc.isAlive()) _proc.getOutputStream().close();
     }
 
     /**
