@@ -62,12 +62,17 @@ public class Sender {
      */
     public void send (String msgName, Map<String,String> msgData) {
         startMessage(msgName);
-        for (Map.Entry<String,String> entry : msgData.entrySet()) {
-            String key = entry.getKey(), data = entry.getValue();
-            if (data.contains(LINE_SEP)) sendText(key, data);
-            else sendString(key, data);
+        try {
+            for (Map.Entry<String,String> entry : msgData.entrySet()) {
+                String key = entry.getKey(), data = entry.getValue();
+                if (data == null) System.err.println(
+                    "Dropping null messge param [msg=" + msgName + ", key=" + key + "]");
+                else if (data.contains(LINE_SEP)) sendText(key, data);
+                else sendString(key, data);
+            }
+        } finally {
+            endMessage();
         }
-        endMessage();
     }
 
     /**
