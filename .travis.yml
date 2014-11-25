@@ -3,10 +3,4 @@ language: java
 jdk:
 - oraclejdk8
 
-after_success:
-- etc/travis-deploy.sh
-
-env:
-  global:
-  - secure: "Pz452H9/YS1BxpkdQUeSTLUkNE+jj6RvMUYdsSHK08wYyZUz8pX13zzx421LnamMloeyWKPg1BustQ2NjeC9eg8JdP2a6BEPYy7bLhUkG8oB9GldEhNcdTJR4rg2k6H2itQXzy8+QsPhv8sz+mla2ekUZVqdMSV2N1YVMWvvHf8="
-  - secure: "fg0ZvHhHcZU27qXy9s3a1Dl0Kqg6sWp+C7sBX17QFpn36uJuZfH//ffUGtedYXnAfXNLiiVYMJsr078OQKhJ5Bplt79PC/ZKKWYPg7PQDYNAwzbq+1UhCFKaC9BDnK8kBHrXvSxYXuWww7Mw/bNwNtH3l7Jca9nvQl89SUoKsKg="
+script: "./bin/travis.sh"
