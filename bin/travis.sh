@@ -2,18 +2,6 @@
 #
 # Builds and tests (for travis-ci.org)
 
-PACKAGE=git:https://github.com/scaled/prococol.git
-
-# create and clean our temp build directory
-mkdir -p target/spam
-SPAM=`cd target/spam ; pwd`
-rm -rf $SPAM/*
-cd $SPAM
-
-# download the spam script
-rm -f spam
-wget https://raw.githubusercontent.com/scaled/pacman/master/bin/spam
-chmod a+rx spam
-
-# install/build the package
-./spam -d -Dscaled.meta=$SPAM install $PACKAGE
+wget https://raw.githubusercontent.com/scaled/pacman/master/bin/build-test.sh
+sh build-test.sh git:https://github.com/scaled/prococol.git
+rm build-test.sh
