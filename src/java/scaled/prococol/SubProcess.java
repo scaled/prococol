@@ -40,6 +40,11 @@ public class SubProcess implements AutoCloseable {
         default File cwd () {
             return new File(System.getProperty("user.dir"));
         }
+
+        /** If true, debug information will be sent to {@link Listener#onErrorOutput}. */
+        default boolean debug () {
+            return false;
+        }
     }
 
     /** Extends {@link Receiver.Listener} with subprocess bits. */
@@ -73,9 +78,26 @@ public class SubProcess implements AutoCloseable {
      */
     public SubProcess (Config config, Listener lner) throws IOException {
         // first start our process, if this fails, everything else will be aborted
-        ProcessBuilder pb = new ProcessBuilder(config.command());
+        String[] cmd = config.command();
+        ProcessBuilder pb = new ProcessBuilder(cmd);
         pb.directory(config.cwd());
         pb.environment().putAll(config.environment());
+
+        if (config.debug()) {
+            lner.onErrorOutput("Starting sub-process:");
+            lner.onErrorOutput("  Command: " + cmd[0]);
+            for (int ii = 1; ii < cmd.length; ii++) lner.onErrorOutput("  Arg: " + cmd[ii]);
+            lner.onErrorOutput("  CWD: " + config.cwd());
+            Map<String,String> env = config.environment();
+            if (!env.isEmpty()) {
+                lner.onErrorOutput("  Env:");
+                for (Map.Entry<String,String> entry : env.entrySet()) lner.onErrorOutput(
+                    "    " + entry.getKey() + " -> " + entry.getValue());
+            }
+        }
+        _config = config;
+        _name = cmd[0];
+        _lner = lner;
         _proc = pb.start();
 
         // create our sender and receiver
@@ -110,13 +132,17 @@ public class SubProcess implements AutoCloseable {
      * of thing.
      */
     public void close () throws IOException {
-        if (_proc.isAlive()) _proc.getOutputStream().close();
+        if (_proc.isAlive()) {
+            if (_config.debug()) _lner.onErrorOutput(_name + ": Closing stdin.");
+            _proc.getOutputStream().close();
+        }
     }
 
     /**
      * Terminates the subprocess forcibly.
      */
     public void kill () {
+        if (_config.debug()) _lner.onErrorOutput(_name + ": Killing subproc.");
         _proc.destroyForcibly();
     }
 
@@ -131,5 +157,8 @@ public class SubProcess implements AutoCloseable {
         return _proc.toString();
     }
 
+    private final Config _config;
+    private final String _name;
+    private final Listener _lner;
     private final Process _proc;
 }
