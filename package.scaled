@@ -4,5 +4,5 @@ version: 1.0
 descrip: A simple text-based protocol for communicating with subprocesses.
  weburl: https://github.com/scaled/prococol
 license: New BSD
- jcopts: -source 1.8 -target 1.8 -Xlint:all -Xlint:-serial
+ jcopts: -Xlint:-serial
  module: test
