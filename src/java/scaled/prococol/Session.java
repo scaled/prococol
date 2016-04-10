@@ -48,8 +48,8 @@ public class Session implements AutoCloseable {
                 if (_actor != null) exec.execute(() -> {
                     if (_actor.onMessage(name, data)) interactionEnded();
                 });
-                else onErrorOutput("Message received outside of interaction [name=%s, data=%s]".
-                                   format(name, data));
+                else onErrorOutput(String.format(
+                    "Message received outside of interaction [name=%s, data=%s]", name, data));
             }
             public void onIOFailure (IOException cause) {
                 onUnexpected(cause);
